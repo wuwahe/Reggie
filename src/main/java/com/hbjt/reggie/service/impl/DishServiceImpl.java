@@ -2,12 +2,17 @@ package com.hbjt.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hbjt.reggie.common.CustomException;
 import com.hbjt.reggie.domain.Dish;
 import com.hbjt.reggie.domain.DishFlavor;
+import com.hbjt.reggie.domain.Setmeal;
+import com.hbjt.reggie.domain.SetmealDish;
 import com.hbjt.reggie.dto.DishDto;
 import com.hbjt.reggie.mapper.DishMapper;
 import com.hbjt.reggie.service.DishFlavorService;
 import com.hbjt.reggie.service.DishService;
+import com.hbjt.reggie.service.SetmealDishService;
+import com.hbjt.reggie.service.SetmealService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +25,16 @@ import java.util.stream.Collectors;
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
+    private DishMapper dishMapper;
+
+    @Autowired
     private DishFlavorService dishFlavorService;
+
+    @Autowired
+    private SetmealService setmealService;
+
+    @Autowired
+    private SetmealDishService setmealDishService;
 
     //新增菜品，同时插入菜品对应的口味数据，需要操作两张表
     @Override
@@ -78,5 +92,34 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         }).collect(Collectors.toList());
 
         dishFlavorService.saveBatch(flavors);
+    }
+
+    @Override
+    public void updateStatus(Integer status, List<Long> ids) {
+        if (status == 0) {
+            LambdaQueryWrapper<SetmealDish> slq = new LambdaQueryWrapper<>();
+            slq.in(SetmealDish::getDishId, ids);
+            List<SetmealDish> list = setmealDishService.list(slq);
+
+            List<Setmeal> setmealList = list.stream().map(item -> {
+                String setmealId = String.valueOf(item.getSetmealId());
+                Setmeal setmeal = setmealService.getById(setmealId);
+                return setmeal;
+            }).collect(Collectors.toList());
+
+            for (Setmeal setmeal : setmealList) {
+                if (setmeal != null && setmeal.getStatus() == 1) {
+                    throw new CustomException("该菜品关联的套餐正在热卖，不能停售");
+                }
+            }
+        }
+
+        LambdaQueryWrapper<Dish> lqw = new LambdaQueryWrapper<>();
+        lqw.in(Dish::getId, ids);
+
+        Dish dish = new Dish();
+        dish.setStatus(status);
+
+        dishMapper.update(dish, lqw);
     }
 }

@@ -160,5 +160,12 @@ public class DishController {
         return R.success("删除成功");
     }
 
-
+    /*
+    * 更改菜品售卖状态
+    * */
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable Integer status,@RequestParam List<Long> ids){
+            dishService.updateStatus(status,ids);
+        return R.success("修改状态成功");
+    }
 }
