@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hbjt.reggie.common.R;
 import com.hbjt.reggie.domain.Category;
-import com.hbjt.reggie.domain.Dish;
 import com.hbjt.reggie.domain.Setmeal;
-import com.hbjt.reggie.domain.SetmealDish;
-import com.hbjt.reggie.dto.DishDto;
 import com.hbjt.reggie.dto.SetmealDto;
 import com.hbjt.reggie.service.CategoryService;
 import com.hbjt.reggie.service.SetmealDishService;
@@ -97,5 +94,33 @@ public class SetmealController {
         setmealService.removeWithDish(ids);
 
         return R.success("套餐数据删除成功");
+    }
+
+    /*
+    * 修改套餐售卖状态
+    * */
+    @PostMapping("/status/{status}")
+    public R<String> updateStatus(@PathVariable Integer status,@RequestParam List<Long> ids){
+            setmealService.updateStatus(status,ids);
+        return R.success("状态修改成功");
+    }
+
+    /*
+    * 修改套餐
+    * */
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto){
+        setmealService.updateWithDish(setmealDto);
+        return R.success("修改套餐成功");
+    }
+
+    /*
+    * 修改页面回显
+    * */
+    @GetMapping("{timestamp}")
+    public R<SetmealDto> updateSelect(@PathVariable Long timestamp){
+
+        SetmealDto setmealDto = setmealService.querySetmeal(timestamp);
+        return R.success(setmealDto);
     }
 }

@@ -9,6 +9,9 @@ import java.util.List;
 
 public interface SetmealService extends IService<Setmeal> {
 
+    @Transactional
+    void updateWithDish(SetmealDto setmealDto);
+
     /*
      * 新增套餐，同时需要保存套餐和菜品的关联关系
      * */
@@ -19,4 +22,8 @@ public interface SetmealService extends IService<Setmeal> {
     * */
     @Transactional
      void removeWithDish(List<Long> ids);
+
+    void updateStatus(Integer status, List<Long> ids);
+
+    SetmealDto querySetmeal(Long timestamp);
 }
