@@ -10,6 +10,10 @@ spring:
       url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: abc66666
+  redis:
+    host: 192.168.74.130
+    port: 6379
+    database: 0
   servlet:
     multipart:
       max-file-size: 10MB
