@@ -2,15 +2,19 @@ package com.hbjt.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hbjt.reggie.common.BaseContext;
 import com.hbjt.reggie.common.R;
 import com.hbjt.reggie.domain.Orders;
+import com.hbjt.reggie.domain.ShoppingCart;
 import com.hbjt.reggie.domain.User;
 import com.hbjt.reggie.service.OrderService;
+import com.hbjt.reggie.service.ShoppingCartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -19,6 +23,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private ShoppingCartService shoppingCartService;
 
     /*
     * 用户下单
@@ -63,5 +70,19 @@ public class OrderController {
         queryWrapper.orderByDesc(Orders::getOrderTime);
         orderService.page(pageInfo,queryWrapper);
         return R.success(pageInfo);
+    }
+
+    /*再来一单*/
+    @PostMapping("/again")
+    public R<List<ShoppingCart>> again(){
+        log.info("查看购物车...");
+
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
+        queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
+
+        List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
+
+        return R.success(list);
     }
 }
