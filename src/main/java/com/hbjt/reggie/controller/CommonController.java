@@ -77,7 +77,5 @@ public class CommonController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 }
